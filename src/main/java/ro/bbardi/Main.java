@@ -65,7 +65,7 @@ public class Main {
                 ASN1OctetString octetString = (ASN1OctetString) ((ASN1TaggedObject) x).getBaseObject().toASN1Primitive();
                 list.add(new String(octetString.getOctets(), StandardCharsets.UTF_8));
             }
-        } catch (IOException _) {
+        } catch (IOException e) {
         }
         System.out.format("Nume: %s\n", list.get(0));
         System.out.format("Prenume: %s\n", list.get(1));
@@ -85,7 +85,7 @@ public class Main {
                 ASN1OctetString octetString = (ASN1OctetString) ((ASN1TaggedObject) x).getBaseObject().toASN1Primitive();
                 list.add(new String(octetString.getOctets(), StandardCharsets.UTF_8));
             }
-        } catch (IOException _) {
+        } catch (IOException e) {
         }
         //System.out.format("Data nasterii: %s\n", list.get(0)); Avem deja data la personalInfo
         System.out.format("Locul nasterii: %s\n", list.get(1));
@@ -101,7 +101,7 @@ public class Main {
                 ASN1OctetString octetString = (ASN1OctetString) ((ASN1TaggedObject) x).getBaseObject().toASN1Primitive();
                 list.add(new String(octetString.getOctets(), StandardCharsets.UTF_8));
             }
-        } catch (IOException _) {
+        } catch (IOException e) {
         }
         System.out.format("Nr Act: %s\n", list.get(0));
         System.out.format("Data emiterii: %s\n", list.get(1));
@@ -119,7 +119,7 @@ public class Main {
                 ASN1OctetString octetString = (ASN1OctetString) ((ASN1TaggedObject) x).getBaseObject().toASN1Primitive();
                 list.add(new String(octetString.getOctets(), StandardCharsets.UTF_8));
             }
-        } catch (IOException _) {
+        } catch (IOException e) {
         }
         System.out.format("Domiciliu: %s\n", list.get(0));
     }
@@ -135,7 +135,7 @@ public class Main {
                 ASN1OctetString octetString = (ASN1OctetString) ((ASN1TaggedObject) x).getBaseObject().toASN1Primitive();
                 list.add(new String(octetString.getOctets(), StandardCharsets.UTF_8));
             }
-        } catch (IOException _) {
+        } catch (IOException e) {
         }
         System.out.format("Flotant: %s\n", list.get(0));
         System.out.format("Data de Inceput: %s\n", list.get(1));
@@ -153,26 +153,29 @@ public class Main {
                 ASN1OctetString octetString = (ASN1OctetString) ((ASN1TaggedObject) x).getBaseObject().toASN1Primitive();
                 list.add(new String(octetString.getOctets(), StandardCharsets.UTF_8));
             }
-        } catch (IOException _) {
+        } catch (IOException e) {
         }
         System.out.format("Domiciliu in strainatate: %s\n", list.get(0));
         System.out.format("Data de Inceput: %s\n", list.get(1)); //Are aceleasi campuri ca si viza de flotant
         System.out.format("Data de Expirare: %s\n", list.get(2)); //Are aceleasi campuri ca si viza de flotant
     }
 
-    public static void main(String[] args) throws CardException, IOException{
+    public static void main(String[] args) throws CardException, IOException {
 
         String pin = "";
-        while(pin.isEmpty()){
+        while (pin.isEmpty()) {
             pin = readPIN();
         }
-        for(CardTerminal terminal : TerminalFactory.getDefault().terminals().list()){
-            if(!terminal.isCardPresent()) {
+        for (CardTerminal terminal : TerminalFactory.getDefault().terminals().list()) {
+            if (!terminal.isCardPresent()) {
                 continue;
             }
             CardChannel c = terminal.connect("*").getBasicChannel();
+            if (!Arrays.equals(c.getCard().getATR().getBytes(), hexFormat.parseHex("3bdf96008131fe4580738421e05569780000808307900024"))) {
+                continue;
+            }
             transmitInitAPDU(c);
-            if(!authenticate(c, pin)){
+            if (!authenticate(c, pin)) {
                 continue;
             }
             selectPersonalFile(c);
