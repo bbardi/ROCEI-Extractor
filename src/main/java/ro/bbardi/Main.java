@@ -162,10 +162,6 @@ public class Main {
 
     public static void main(String[] args) throws CardException, IOException {
 
-        String pin = "";
-        while (pin.isEmpty()) {
-            pin = readPIN();
-        }
         for (CardTerminal terminal : TerminalFactory.getDefault().terminals().list()) {
             if (!terminal.isCardPresent()) {
                 continue;
@@ -175,8 +171,12 @@ public class Main {
                 continue;
             }
             transmitInitAPDU(c);
+            String pin = "";
+            while (pin.isEmpty()) {
+                pin = readPIN();
+            }
             if (!authenticate(c, pin)) {
-                continue;
+                break;
             }
             selectPersonalFile(c);
             getPersonalInfo(c);
